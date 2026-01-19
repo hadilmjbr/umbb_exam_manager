@@ -1,26 +1,37 @@
 import psycopg2
 import sys
+import os
+from dotenv import load_dotenv
 
-# Configuration de la base de données
-# À modifier selon votre configuration locale PostgreSQL
+# Charge les variables d'environnement depuis le fichier .env
+load_dotenv()
+
+# Configuration de la base de données locale (Sert de secours si Neon n'est pas configuré)
 DB_CONFIG = {
     "host": "localhost",
     "database": "projet_bda",
     "user": "postgres",
-    "password": "projet_bda",  # ⚠️ Vérifiez bien ce mot de passe !
+    "password": "projet_bda",
     "port": 5432
 }
 
 def get_connection():
     """
-    Établit une connexion sécurisée à la base de données PostgreSQL.
-    Retourne l'objet connection ou None en cas d'échec.
+    Établit une connexion sécurisée à la base de données (Neon ou Local).
+    Priorité à l'URL définie dans les variables d'environnement.
     """
+    db_url = os.getenv("DATABASE_URL")
+    
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
-        return conn
+        if db_url:
+            # Connexion au Cloud (Neon)
+            return psycopg2.connect(db_url)
+        else:
+            # Connexion Locale
+            conn = psycopg2.connect(**DB_CONFIG)
+            return conn
     except psycopg2.Error as e:
-        print(f"❌ Erreur critique de connexion BDD : {e}")
+        print(f"❌ Erreur de connexion BDD : {e}")
         return None
 
 if __name__ == "__main__":
