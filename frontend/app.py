@@ -1084,6 +1084,17 @@ def login_screen():
             st.markdown("<h2 style='text-align: center; color: #0D47A1; border: none;'>Plateforme de Gestion des Examens</h2>", unsafe_allow_html=True)
             st.markdown("<p style='text-align: center; color: #666; margin-bottom: 20px;'>Utilisez vos identifiants universitaires pour accéder à l'espace.</p>", unsafe_allow_html=True)
             
+            # --- Diagnostic Connexion (Visible seulement si erreur) ---
+            conn_test = auth_backend.get_connection()
+            if not conn_test:
+                st.error("⚠️ La base de données n'est pas connectée.")
+                if not os.getenv("DATABASE_URL"):
+                    st.info("💡 Conseil : Le Secret 'DATABASE_URL' semble manquant dans vos paramètres Streamlit Cloud.")
+                else:
+                    st.info("💡 Conseil : Le lien dans vos Secrets est présent mais Neon refuse la connexion. Vérifiez le mot de passe.")
+            else:
+                conn_test.close()
+
             st.markdown("### Se connecter")
             
             with st.form("login_form"):
