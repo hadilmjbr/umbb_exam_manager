@@ -3,6 +3,9 @@
 -- =====================================================
 
 
+-- Table: audit_log
+CREATE TABLE audit_log (id integer NOT NULL, table_name character varying(50), operation character varying(10), record_id integer, changed_at timestamp without time zone, old_value text, new_value text);
+
 -- Table: departements
 CREATE TABLE departements (id integer NOT NULL, nom character varying(150) NOT NULL);
 
@@ -34,12 +37,15 @@ CREATE TABLE salles (id integer NOT NULL, nom character varying(50), capacite in
 CREATE TABLE users (id integer NOT NULL, username character varying(100) NOT NULL, password_hash character varying(256) NOT NULL, role character varying(20) NOT NULL, ref_id integer, email character varying(150) NOT NULL);
 
 -- Table: validation_pedagogique
-CREATE TABLE validation_pedagogique (id integer NOT NULL, formation_id integer, statut character varying(20), commentaire text, date_maj timestamp without time zone);
+CREATE TABLE validation_pedagogique (id integer NOT NULL, formation_id integer, statut character varying(50), commentaire text, date_maj timestamp without time zone);
 
 
 -- =====================================================
 -- CONTRAINTES
 -- =====================================================
+
+-- audit_log: audit_log_pkey
+ALTER TABLE audit_log ADD CONSTRAINT audit_log_pkey PRIMARY KEY (id);
 
 -- departements: departements_pkey
 ALTER TABLE departements ADD CONSTRAINT departements_pkey PRIMARY KEY (id);
@@ -53,11 +59,11 @@ ALTER TABLE etudiants ADD CONSTRAINT etudiants_formation_id_fkey FOREIGN KEY (fo
 -- etudiants: etudiants_pkey
 ALTER TABLE etudiants ADD CONSTRAINT etudiants_pkey PRIMARY KEY (id);
 
--- examens: examens_module_id_fkey
-ALTER TABLE examens ADD CONSTRAINT examens_module_id_fkey FOREIGN KEY (module_id) REFERENCES modules(id);
-
 -- examens: examens_salle_id_fkey
 ALTER TABLE examens ADD CONSTRAINT examens_salle_id_fkey FOREIGN KEY (salle_id) REFERENCES salles(id);
+
+-- examens: examens_module_id_fkey
+ALTER TABLE examens ADD CONSTRAINT examens_module_id_fkey FOREIGN KEY (module_id) REFERENCES modules(id);
 
 -- examens: examens_prof_id_fkey
 ALTER TABLE examens ADD CONSTRAINT examens_prof_id_fkey FOREIGN KEY (prof_id) REFERENCES professeurs(id);
@@ -119,6 +125,6 @@ ALTER TABLE validation_pedagogique ADD CONSTRAINT validation_pedagogique_formati
 -- validation_pedagogique: validation_pedagogique_pkey
 ALTER TABLE validation_pedagogique ADD CONSTRAINT validation_pedagogique_pkey PRIMARY KEY (id);
 
--- validation_pedagogique: unique_formation
-ALTER TABLE validation_pedagogique ADD CONSTRAINT unique_formation UNIQUE (formation_id);
+-- validation_pedagogique: validation_pedagogique_formation_id_key
+ALTER TABLE validation_pedagogique ADD CONSTRAINT validation_pedagogique_formation_id_key UNIQUE (formation_id);
 

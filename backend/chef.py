@@ -174,10 +174,10 @@ def get_doyen_dashboard_stats():
     query = """
         SELECT 
             d.id,
-            d.nom as "Departement",
+            d.nom as "Département",
             COUNT(f.id) as "Total Formations",
             SUM(CASE WHEN v.statut = 'VALIDE_CHEF' THEN 1 ELSE 0 END) as "En Attente Doyen",
-            SUM(CASE WHEN v.statut = 'PUBLIE' THEN 1 ELSE 0 END) as "Publies"
+            SUM(CASE WHEN v.statut = 'PUBLIE' THEN 1 ELSE 0 END) as "Publiés"
         FROM departements d
         LEFT JOIN formations f ON d.id = f.dept_id
         LEFT JOIN validation_pedagogique v ON f.id = v.formation_id
