@@ -18,20 +18,32 @@ DB_CONFIG = {
 def get_connection():
     """
     Établit une connexion sécurisée à la base de données (Neon ou Local).
-    Priorité à l'URL définie dans les variables d'environnement.
+    Priorité à l'URL définie dans les secrets Streamlit ou variables d'environnement.
     """
-    db_url = os.getenv("DATABASE_URL")
+    db_url = None
+    
+    # 1. Tenter de récupérer via Streamlit Secrets (Cloud)
+    try:
+        import streamlit as st
+        if "DATABASE_URL" in st.secrets:
+            db_url = st.secrets["DATABASE_URL"]
+    except:
+        pass
+
+    # 2. Tenter de récupérer via Variables d'environnement (Neon Local ou Docker)
+    if not db_url:
+        db_url = os.getenv("DATABASE_URL")
     
     try:
         if db_url:
-            # Connexion au Cloud (Neon)
+            # Nettoyage de l'URL au cas où (guillemets involontaires)
+            db_url = db_url.strip("'").strip('"')
             return psycopg2.connect(db_url)
         else:
-            # Connexion Locale
-            conn = psycopg2.connect(**DB_CONFIG)
-            return conn
-    except psycopg2.Error as e:
-        print(f"❌ Erreur de connexion BDD : {e}")
+            # 3. Connexion Locale (Secours)
+            return psycopg2.connect(**DB_CONFIG)
+    except Exception as e:
+        print(f"❌ Erreur critique de connexion BDD : {e}")
         return None
 
 if __name__ == "__main__":
